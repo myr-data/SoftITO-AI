@@ -59,7 +59,8 @@ Bu dosyada genel notlar vardır. Detaylı ders notları için klasörlerin içer
 
 ## Dosya Yapısı
 
-```│   README.md
+```
+│   README.md
 │   README_EN.md
 │   sentetik-veri-uretimi.html
 │   Sinem_Gencer_CV.html
@@ -124,7 +125,8 @@ Bu dosyada genel notlar vardır. Detaylı ders notları için klasörlerin içer
 │           lstm.ipynb
 │           spam.csv
 │
-└───Quiz```
+└───Quiz
+```
 
 ## Makine Öğrenmesi
 
@@ -154,7 +156,8 @@ Sıklık/nadirlik dengesi baz alınarak hesaplanan en önemli 3 kelime:
 
 **Word2Vec** çıktıları
 
-```Kelime çiftleri arasındaki benzerlik:
+```
+Kelime çiftleri arasındaki benzerlik:
 Çift                            Benzerlik
 ------------------------------------------
 (movie, film)                0.8926  █████████████████
@@ -169,7 +172,8 @@ Sıklık/nadirlik dengesi baz alınarak hesaplanan en önemli 3 kelime:
   (movie + action - film)
   → gunfights        (0.6361)
   → swordplay        (0.6330)
-  → honk             (0.6239)```
+  → honk             (0.6239)
+  ```
 
 
 **GloVe** çıktıları:
