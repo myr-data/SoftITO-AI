@@ -176,4 +176,82 @@ Kelime çiftleri arasındaki benzerlik:
   ```
 
 
-**GloVe** çıktıları:
+**GloVe** çıktıları, tüm kelimelerin istatistiklerine bakılarak hesaplanır:
+- "movie" ve "film" yakınlık: 0.996
+- "good" ve "bad" yakınlık: 0.991
+- "actor" ve "actress" yakınlık: 0.983
+
+**FastText** çıktıları:
+
+```
+'film' -> en benzer 3 kelime:
+    file (0.8123)
+    filmed (0.7942)
+    films (0.7916)
+
+'movie' -> en benzer 3 kelime:
+    movies (0.8455)
+    move (0.7924)
+    pie (0.7691)
+
+'action' -> en benzer 3 kelime:
+    fraction (0.9407)
+    function (0.9271)
+    section (0.9250)
+
+OOV Test: 'prehistoric' eğitimde var mı? Yok
+  Ama FastText yine de vektör üretti (subword'ler sayesinde)!
+  Vektör (ilk 5 değer): [ 0.03975208 -0.07775656  0.09691246  0.0873099  -0.1234142 ]
+```
+
+## Derin Öğrenme
+
+Almanya'nın bir kentinin iklimsel/hava durumu bilgileri ile **çok değişkenli zaman serisi tahmini** projesi yapıldı. Öncelikle veriseti temizlendi ve eksikleri giderildi, sonra zamansal veriler sinüs ve kosinüs fonksiyonları kullanılarak dairesel bir şekilde sayısal değerlere çevrildi.
+
+**Nem** ve **sıcaklık** verilerinin ikisinin de tahmin edilmesi için kullanılan farklı modellerin sonuçları:
+
+ANN
+Temperature
+MAE  : 0.722 °C
+RMSE : 0.927 °C
+R²   : 0.9858
+
+Humidity
+MAE  : 1.890 %
+RMSE : 2.881 %
+R²   : 0.9657
+
+RNN
+Temperature
+MAE  : 0.230 °C
+RMSE : 0.296 °C
+R²   : 0.9986
+
+Humidity
+MAE  : 0.856 %
+RMSE : 1.171 %
+R²   : 0.9943
+
+LSTM
+Temperature
+MAE  : 0.633 °C
+RMSE : 0.750 °C
+R²   : 0.9907
+
+Humidity
+MAE  : 0.869 %
+RMSE : 1.232 %
+R²   : 0.9937
+
+GRU
+Temperature
+MAE  : 0.633 °C
+RMSE : 0.750 °C
+R²   : 0.9907
+
+Humidity
+MAE  : 0.869 %
+RMSE : 1.232 %
+R²   : 0.9937
+
+TRANSFORMER
