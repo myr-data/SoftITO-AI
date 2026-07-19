@@ -210,48 +210,10 @@ Almanya'nın bir kentinin iklimsel/hava durumu bilgileri ile **çok değişkenli
 
 **Nem** ve **sıcaklık** verilerinin ikisinin de tahmin edilmesi için kullanılan farklı modellerin sonuçları:
 
-ANN
-Temperature
-MAE  : 0.722 °C
-RMSE : 0.927 °C
-R²   : 0.9858
-
-Humidity
-MAE  : 1.890 %
-RMSE : 2.881 %
-R²   : 0.9657
-
-RNN
-Temperature
-MAE  : 0.230 °C
-RMSE : 0.296 °C
-R²   : 0.9986
-
-Humidity
-MAE  : 0.856 %
-RMSE : 1.171 %
-R²   : 0.9943
-
-LSTM
-Temperature
-MAE  : 0.633 °C
-RMSE : 0.750 °C
-R²   : 0.9907
-
-Humidity
-MAE  : 0.869 %
-RMSE : 1.232 %
-R²   : 0.9937
-
-GRU
-Temperature
-MAE  : 0.633 °C
-RMSE : 0.750 °C
-R²   : 0.9907
-
-Humidity
-MAE  : 0.869 %
-RMSE : 1.232 %
-R²   : 0.9937
-
-TRANSFORMER
+| Model           | Temp MAE (°C) ↓ | Temp RMSE (°C) ↓ |  Temp R² ↑ | Humidity MAE (%) ↓ | Humidity RMSE (%) ↓ | Humidity R² ↑ |
+| :-------------- | --------------: | ---------------: | ---------: | -----------------: | ------------------: | ------------: |
+| **ANN**         |           0.722 |            0.927 |     0.9858 |              1.890 |               2.881 |        0.9657 |
+| **RNN**         |       **0.230** |        **0.296** | **0.9986** |          **0.856** |           **1.171** |    **0.9943** |
+| **LSTM**        |           0.633 |            0.750 |     0.9907 |              0.869 |               1.232 |        0.9937 |
+| **GRU**         |           0.633 |            0.750 |     0.9907 |              0.869 |               1.232 |        0.9937 |
+| **Transformer** |           1.763 |            2.154 |     0.9234 |              5.347 |               6.088 |        0.8469 |
