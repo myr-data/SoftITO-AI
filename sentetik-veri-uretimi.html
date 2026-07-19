@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentetik Veri Üretimi — Kapsamlı Rehber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0D12;
+    --panel:#12161F;
+    --panel-2:#171C27;
+    --border:#232A38;
+    --text:#E7EAF0;
+    --text-dim:#8D96A8;
+    --text-faint:#5A6377;
+    --real:#E8A33D;
+    --real-dim:#4A3A1E;
+    --synth:#45D8C6;
+    --synth-dim:#1B3B38;
+    --danger:#E8615A;
+    --danger-dim:#3A2020;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.65;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-0.01em;color:var(--text);margin:0;}
+  code, .mono, .badge, .stat, .toc a span.num{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--synth);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  p{color:var(--text-dim);margin:0 0 14px;}
+  ::selection{background:var(--synth-dim);color:var(--text);}
+
+  /* Layout */
+  .shell{display:grid;grid-template-columns:270px 1fr;max-width:1320px;margin:0 auto;}
+  .sidebar{
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+    padding:32px 20px 40px 32px;border-right:1px solid var(--border);
+  }
+  .sidebar::-webkit-scrollbar{width:6px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+  .brand-mark{width:26px;height:26px;flex:none;position:relative;}
+  .brand-mark span{position:absolute;width:9px;height:9px;border-radius:50%;}
+  .brand-mark .a{background:var(--real);top:2px;left:2px;}
+  .brand-mark .b{background:var(--synth);bottom:2px;right:2px;}
+  .brand-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--text);}
+  .brand-name small{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);font-weight:400;letter-spacing:.04em;}
+
+  .toc{display:flex;flex-direction:column;gap:2px;}
+  .toc-group{margin-bottom:18px;}
+  .toc-group-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--text-faint);font-family:'JetBrains Mono',monospace;margin:0 0 8px 10px;}
+  .toc a{
+    display:flex;gap:10px;align-items:baseline;color:var(--text-dim);font-size:13.5px;
+    padding:7px 10px;border-radius:7px;border-left:2px solid transparent;
+  }
+  .toc a:hover{background:var(--panel);color:var(--text);text-decoration:none;}
+  .toc a span.num{color:var(--text-faint);font-size:11px;min-width:16px;}
+
+  main{padding:0 56px 100px;min-width:0;}
+
+  /* Hero */
+  .hero{padding:72px 0 40px;border-bottom:1px solid var(--border);margin-bottom:56px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;letter-spacing:.08em;color:var(--text-faint);text-transform:uppercase;
+    border:1px solid var(--border);padding:5px 12px;border-radius:100px;margin-bottom:24px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--synth);}
+  h1.title{font-size:52px;line-height:1.06;max-width:820px;margin-bottom:20px;}
+  h1.title .accent{color:var(--synth);}
+  .subtitle{font-size:18px;color:var(--text-dim);max-width:640px;margin-bottom:36px;}
+  .hero-meta{display:flex;gap:28px;flex-wrap:wrap;font-size:13px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;margin-bottom:48px;}
+  .hero-meta b{color:var(--text-dim);font-weight:500;}
+
+  /* Pipeline signature visual */
+  .pipeline{
+    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px 32px;
+  }
+  .pipe-col{display:flex;flex-direction:column;gap:9px;}
+  .pipe-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;margin-bottom:6px;}
+  .pipe-label.real{color:var(--real);}
+  .pipe-label.synth{color:var(--synth);}
+  .pipe-row{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-faint);}
+  .pip{width:8px;height:8px;border-radius:2px;flex:none;}
+  .pip.real{background:var(--real);box-shadow:0 0 10px rgba(232,163,61,.35);}
+  .pip.synth{background:var(--synth);box-shadow:0 0 10px rgba(69,216,198,.35);animation:pulse 2.4s ease-in-out infinite;}
+  .pip.synth:nth-child(3n){animation-delay:.4s;}
+  .pip.synth:nth-child(3n+1){animation-delay:.8s;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .pipe-core{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .pipe-core .box{
+    width:74px;height:74px;border-radius:12px;border:1px solid var(--border);
+    background:linear-gradient(135deg,var(--real-dim),var(--synth-dim));
+    display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+  }
+  .pipe-core .box svg{width:34px;height:34px;}
+  .pipe-core small{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text-faint);text-align:center;letter-spacing:.03em;max-width:110px;}
+  .arrow-track{height:1px;background:linear-gradient(90deg,var(--real),var(--synth));position:relative;flex:1;}
+
+  /* Sections */
+  section{scroll-margin-top:24px;margin-bottom:64px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+  .sec-num{font-family:'JetBrains Mono',monospace;color:var(--text-faint);font-size:14px;}
+  .sec-head h2{font-size:27px;}
+  .lede{font-size:16.5px;color:var(--text-dim);max-width:760px;margin-bottom:24px;}
+
+  h3{font-size:18px;margin:30px 0 10px;color:var(--text);}
+  h4{font-size:14.5px;margin:20px 0 8px;color:var(--text);}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
+  .card h4{margin-top:0;}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;font-size:10.5px;padding:3px 9px;border-radius:100px;
+    border:1px solid var(--border);color:var(--text-dim);letter-spacing:.03em;
+  }
+  .badge.real{border-color:var(--real);color:var(--real);}
+  .badge.synth{border-color:var(--synth);color:var(--synth);}
+  .badge.warn{border-color:var(--danger);color:var(--danger);}
+
+  pre{
+    background:#0D1017;border:1px solid var(--border);border-radius:8px;padding:16px 18px;overflow-x:auto;
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.6;color:#C9D1DB;margin:12px 0 18px;
+  }
+  pre .c1{color:var(--text-faint);}
+  pre .k{color:var(--synth);}
+  pre .s{color:var(--real);}
+  code.inline{font-family:'JetBrains Mono',monospace;background:var(--panel-2);padding:1px 6px;border-radius:5px;font-size:13px;color:#C9D1DB;border:1px solid var(--border);}
+
+  .out-label{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;margin:0 0 -4px;}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0 24px;font-size:13.5px;}
+  th{
+    text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--text-faint);padding:10px 14px;border-bottom:1px solid var(--border);font-weight:500;
+  }
+  td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text-dim);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td strong{color:var(--text);font-weight:600;}
+  td a{white-space:nowrap;}
+
+  .method-card{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);margin-bottom:26px;overflow:hidden;}
+  .method-head{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--panel-2);}
+  .method-head h3{margin:0;font-size:17px;}
+  .method-body{padding:20px 22px;}
+  .src-line{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-faint);margin-top:10px;}
+  .src-line a{color:var(--text-dim);}
+
+  .tool-card{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);padding:18px 20px;display:flex;flex-direction:column;gap:8px;}
+  .tool-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .tool-top h4{margin:0;font-size:15.5px;}
+  .tool-tags{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 4px;}
+  .tool-tags span{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text-faint);border:1px solid var(--border);padding:2px 7px;border-radius:100px;}
+  .tool-link{font-family:'JetBrains Mono',monospace;font-size:11.5px;margin-top:auto;}
+
+  .callout{border-left:3px solid var(--synth);background:var(--panel);border-radius:0 8px 8px 0;padding:16px 20px;margin:20px 0;}
+  .callout.warn{border-left-color:var(--danger);}
+  .callout p{margin:0;color:var(--text-dim);font-size:14px;}
+  .callout .cal-title{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);margin-bottom:6px;}
+  .callout.warn .cal-title{color:var(--danger);}
+
+  ol.steps{padding-left:0;list-style:none;counter-reset:step;margin:14px 0 22px;}
+  ol.steps li{
+    counter-increment:step;position:relative;padding:10px 0 10px 40px;color:var(--text-dim);
+    border-bottom:1px solid var(--border);font-size:14.5px;
+  }
+  ol.steps li:last-child{border-bottom:none;}
+  ol.steps li::before{
+    content:counter(step);position:absolute;left:0;top:9px;width:24px;height:24px;border-radius:6px;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--synth);font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;display:flex;align-items:center;justify-content:center;
+  }
+  ol.steps li strong{color:var(--text);}
+
+  ul.plain{padding-left:20px;margin:0 0 16px;color:var(--text-dim);}
+  ul.plain li{margin-bottom:6px;font-size:14.5px;}
+  ul.plain li strong{color:var(--text);}
+
+  .refs{list-style:none;padding:0;margin:0;counter-reset:ref;}
+  .refs li{counter-increment:ref;padding:12px 0;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--text-dim);display:flex;gap:14px;}
+  .refs li::before{content:"["counter(ref)"]";color:var(--text-faint);font-family:'JetBrains Mono',monospace;flex:none;}
+  .refs li a{color:var(--text);}
+  .refs li span.sub{display:block;color:var(--text-faint);font-size:12px;margin-top:2px;}
+
+  footer{border-top:1px solid var(--border);padding-top:28px;color:var(--text-faint);font-size:13px;font-family:'JetBrains Mono',monospace;}
+
+  .toggle-btn{display:none;}
+
+  @media (max-width:980px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:20px;}
+    main{padding:0 20px 80px;}
+    h1.title{font-size:34px;}
+    .grid-2,.grid-3{grid-template-columns:1fr;}
+    .pipeline{grid-template-columns:1fr;}
+    .arrow-track{width:1px;height:40px;background:linear-gradient(180deg,var(--real),var(--synth));margin:0 auto;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><span class="a"></span><span class="b"></span></div>
+      <div class="brand-name">Sentetik Veri<small>CS MEZUNLARI İÇİN REHBER</small></div>
+    </div>
+    <nav class="toc">
+      <div class="toc-group">
+        <div class="toc-group-title">Temeller</div>
+        <a href="#giris"><span class="num">01</span>Sentetik veri nedir?</a>
+        <a href="#neden"><span class="num">02</span>Neden üretilir?</a>
+        <a href="#genel-yaklasimlar"><span class="num">03</span>Genel üretim yaklaşımları</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-title">Yöntemler</div>
+        <a href="#kural-tabanli"><span class="num">04</span>Kural / şablon tabanlı</a>
+        <a href="#istatistiksel"><span class="num">05</span>İstatistiksel yöntemler</a>
+        <a href="#uretici-modeller"><span class="num">06</span>Derin üretici modeller</a>
+        <a href="#simulasyon"><span class="num">07</span>Simülasyon tabanlı</a>
+        <a href="#llm-tabanli"><span class="num">08</span>LLM tabanlı üretim</a>
+        <a href="#ajan-tabanli"><span class="num">09</span>Ajan / persona simülasyonu</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-title">Endüstri</div>
+        <a href="#arac-karsilastirma"><span class="num">10</span>Araç karşılaştırması</a>
+        <a href="#kalite"><span class="num">11</span>Kalite değerlendirme</a>
+        <a href="#riskler"><span class="num">12</span>Riskler ve sınırlamalar</a>
+        <a href="#yol-haritasi"><span class="num">13</span>Öğrenme yol haritası</a>
+        <a href="#kaynakca"><span class="num">14</span>Kaynakça</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <span class="eyebrow"><span class="dot"></span>Teknik Rehber · Temmuz 2026</span>
+      <h1 class="title">Sentetik Veri Üretimi: <span class="accent">az</span>dan çoğu, <span class="accent">gizliden</span> güvenliyi üretmek</h1>
+      <p class="subtitle">Neden yapılır, nasıl üretilir, endüstrinin kullandığı yöntem ve araçlar nelerdir — kural tabanlı üreteçlerden GAN'lara, simülasyon motorlarından LLM tabanlı veri sentezine kadar uçtan uca bir harita.</p>
+      <div class="hero-meta">
+        <span><b>Seviye:</b> Giriş–Orta</span>
+        <span><b>Ön koşul:</b> Temel ML/istatistik bilgisi</span>
+        <span><b>Okuma süresi:</b> ~35 dk</span>
+      </div>
+
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-label real">● GERÇEK VERİ</div>
+          <div class="pipe-row"><span class="pip real"></span>az, pahalı, hassas</div>
+          <div class="pipe-row"><span class="pip real"></span>toplama izni gerekir</div>
+          <div class="pipe-row"><span class="pip real"></span>nadir olaylar eksik</div>
+        </div>
+        <div class="pipe-core">
+          <div class="arrow-track"></div>
+          <div class="box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E7EAF0" stroke-width="1.4">
+              <path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/>
+              <circle cx="19" cy="18" r="2.4"/>
+            </svg>
+          </div>
+          <small>ÜRETEÇ / MODEL</small>
+          <div class="arrow-track"></div>
+        </div>
+        <div class="pipe-col">
+          <div class="pipe-label synth">● SENTETİK VERİ</div>
+          <div class="pipe-row"><span class="pip synth"></span>bol, ucuz, ölçeklenebilir</div>
+          <div class="pipe-row"><span class="pip synth"></span>gizlilik riski taşımaz</div>
+          <div class="pipe-row"><span class="pip synth"></span>nadir senaryo üretilebilir</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 GİRİŞ -->
+    <section id="giris">
+      <div class="sec-head"><span class="sec-num">01</span><h2>Sentetik veri nedir?</h2></div>
+      <p class="lede">Sentetik veri, gerçek dünyadan doğrudan toplanmamış, bunun yerine bir algoritma, model, kural kümesi veya simülasyon ortamı tarafından üretilmiş veridir. Amaç genellikle gerçek verinin istatistiksel özelliklerini, korelasyonlarını ve yapısını olabildiğince koruyup, gerçek bireylere veya olaylara doğrudan karşılık gelmeyen yeni kayıtlar üretmektir.</p>
+      <p>Sentetik veriyi anonimleştirilmiş veriden ayıran temel fark budur: anonimleştirme var olan gerçek kayıtları maskeler (isim silme, genelleme, gürültü ekleme), ama kayıtların kendisi hâlâ gerçek bireylere karşılık gelmeye devam edebilir ve yeniden-kimliklendirme (re-identification) riski taşır. Sentetik veri ise sıfırdan üretilen, hiçbir gerçek kayda bire bir karşılık gelmeyen kayıtlardır.</p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="badge real">Tablosal</div>
+          <h4>Müşteri / işlem kayıtları</h4>
+          <p style="font-size:13.5px;margin:0">Banka, sigorta, sağlık kayıtlarının istatistiksel ikizleri.</p>
+        </div>
+        <div class="card">
+          <div class="badge synth">Görsel / sensör</div>
+          <h4>Görüntü, LiDAR, video</h4>
+          <p style="font-size:13.5px;margin:0">Otonom sürüş, robotik, bilgisayarlı görü eğitim verisi.</p>
+        </div>
+        <div class="card">
+          <div class="badge" style="border-color:#8D96A8;color:#C9D1DB">Metin / konuşma</div>
+          <h4>Talimat–yanıt çiftleri</h4>
+          <p style="font-size:13.5px;margin:0">LLM ince ayarı, RLHF/RLAIF, değerlendirme veri kümeleri.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 NEDEN -->
+    <section id="neden">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Neden sentetik veri üretimi yapılır?</h2></div>
+      <p class="lede">Sentetik veri üretimini tetikleyen altı temel motivasyon vardır; genellikle bunların birkaçı aynı anda geçerlidir.</p>
+
+      <ol class="steps">
+        <li><strong>Gizlilik ve regülasyon uyumu.</strong> KVKK, GDPR, HIPAA gibi düzenlemeler kişisel veya sağlık verisinin paylaşımını sınırlar. Sentetik veri, orijinal dağılımı koruyarak geliştirme, test ve dış paydaşla paylaşım ortamlarında gerçek veri riskini ortadan kaldırır.</li>
+        <li><strong>Veri kıtlığı ve nadir olaylar.</strong> Dolandırıcılık vakaları, nadir hastalıklar, trafik kazaları gibi düşük frekanslı olaylar gerçek veri kümelerinde çok az temsil edilir. Simülasyon veya üretici modellerle bu senaryolar istenildiği kadar çoğaltılabilir.</li>
+        <li><strong>Sınıf dengesizliği.</strong> Azınlık sınıfının (ör. dolandırıcılık %0,1) modele yeterince öğretilebilmesi için SMOTE gibi tekniklerle sentetik örnekler üretilip veri kümesi dengelenir.</li>
+        <li><strong>Maliyet ve etiketleme hızı.</strong> İnsan etiketlemesi yavaş ve pahalıdır; simülasyon ortamlarında ise "zemin gerçeği" (ground truth) etiket üretim sürecinin bir yan ürünüdür — bedavaya, hatasız gelir.</li>
+        <li><strong>Ölçek — foundation model eğitimi.</strong> Büyük dil modelleri trilyonlarca token gerektirir; kaliteli insan verisi kaynakları sınırlıdır. Frontier laboratuvarlar akıl yürütme zincirleri, kod, matematik gibi alanlarda LLM'in kendi ürettiği veriyle modeli beslemeye giderek daha çok bağımlı hale geldi.</li>
+        <li><strong>Test ve CI/CD ortamları.</strong> Yazılım ekipleri, üretim veritabanının yapısını (şema, referans bütünlüğü) birebir koruyan ama içinde gerçek müşteri bilgisi barındırmayan test veritabanlarına ihtiyaç duyar.</li>
+      </ol>
+
+      <div class="callout warn">
+        <div class="cal-title">Dikkat — bedava öğle yemeği yok</div>
+        <p>Sentetik veri gerçek veriyi tamamen ikame etmez. Üretici model gerçek verinin örüntülerini öğrendiği için, gerçek veride olmayan bir bilgiyi "icat edemez"; sadece var olan dağılımı yeniden örnekler veya dış bilgiyle (simülasyon fiziği, LLM'in genel bilgisi) zenginleştirir. Kalite her zaman kaynak veriye ve üretim sürecine bağlıdır.</p>
+      </div>
+    </section>
+
+    <!-- 03 GENEL YAKLAŞIMLAR -->
+    <section id="genel-yaklasimlar">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Genel üretim yaklaşımları — bir taksonomi</h2></div>
+      <p class="lede">Endüstride kullanılan onlarca araç, aslında beş temel yaklaşımın varyasyonlarıdır. Aşağıdaki bölümler her birini sırayla, artan karmaşıklık düzeyinde ele alır.</p>
+      <table>
+        <tr><th>#</th><th>Yaklaşım</th><th>Temel fikir</th><th>Tipik veri türü</th></tr>
+        <tr><td class="mono">1</td><td><strong>Kural / şablon tabanlı</strong></td><td>Elle yazılmış kurallar ve rastgele değer havuzlarından deterministik üretim</td><td>Test verisi, isim/adres, kimlik alanları</td></tr>
+        <tr><td class="mono">2</td><td><strong>İstatistiksel modelleme</strong></td><td>Gerçek verinin dağılımını / korelasyon yapısını öğrenip yeniden örnekleme</td><td>Tablosal, ilişkisel veritabanları</td></tr>
+        <tr><td class="mono">3</td><td><strong>Derin üretici modeller</strong></td><td>GAN, VAE, Diffusion ile veri manifoldunu öğrenip yeni örnekler sentezleme</td><td>Görüntü, tablosal, zaman serisi</td></tr>
+        <tr><td class="mono">4</td><td><strong>Simülasyon tabanlı</strong></td><td>Fiziksel/3D ortam veya ajan modeli ile veriyi "yaşatarak" üretme</td><td>Sensör, görüntü, video, sağlık kayıt akışı</td></tr>
+        <tr><td class="mono">5</td><td><strong>LLM / foundation model tabanlı</strong></td><td>Büyük dil modelinin kendi çıktısından yeni eğitim/değerlendirme verisi damıtma</td><td>Metin, kod, talimat-yanıt, tercih verisi</td></tr>
+      </table>
+    </section>
+
+    <!-- 04 KURAL TABANLI -->
+    <section id="kural-tabanli">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Kural / şablon tabanlı üretim</h2></div>
+      <p class="lede">En basit ve en eski yaklaşım. Her alan (isim, e-posta, IBAN, tarih) için önceden tanımlı bir üreteç fonksiyonu veya değer havuzu vardır; kayıtlar bu fonksiyonların rastgele çağrılmasıyla oluşturulur. İstatistiksel gerçekçilik hedeflenmez — amaç şema uyumluluğu ve hızdır.</p>
+
+      <div class="method-card">
+        <div class="method-head">
+          <h3>Faker (Python / JS kütüphanesi)</h3>
+          <span class="badge synth">açık kaynak</span>
+        </div>
+        <div class="method-body">
+          <p>Yüzlerce "provider" ile isim, adres, şirket, kredi kartı, IBAN, metin gibi gerçekçi görünümlü ama rastgele alanlar üretir. Locale desteği sayesinde <code class="inline">tr_TR</code> gibi yerel formatlar da üretilebilir. Yönlendirici mantık kural tabanlıdır; alanlar arası istatistiksel bağımlılık üretmez.</p>
+          <p class="out-label">Örnek kod</p>
+          <pre>from faker import Faker
+fake = Faker("tr_TR")
+
+for _ in range(3):
+    print(fake.name(), "|", fake.iban(), "|", fake.company())</pre>
+          <p class="out-label">Örnek çıktı</p>
+          <pre><span class="c1"># Ayşe Yıldız | TR33 0006 1005 1978 6457 8413 26 | Kaya Teknoloji A.Ş.
+# Mehmet Demir | TR12 0004 6007 8811 2233 4455 01 | Aydın Lojistik Ltd.
+# Zeynep Çelik | TR55 0010 3009 4477 1122 3344 67 | Öztürk Danışmanlık</span></pre>
+          <div class="src-line">Kaynak: <a href="https://faker.readthedocs.io/" target="_blank">faker.readthedocs.io</a></div>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-head">
+          <h3>Mockaroo</h3>
+          <span class="badge">SaaS · ücretsiz katman var</span>
+        </div>
+        <div class="method-body">
+          <p>Web tabanlı, şema tasarlayıp CSV/JSON/SQL formatında büyük hacimli test verisi indirmeyi sağlayan bir araç. Alanlar arasında basit koşullu mantık (ör. "yaş > 18 ise doğum yılı ≤ 2008") kurulabilir; API üzerinden CI/CD pipeline'larına entegre edilebilir.</p>
+          <div class="src-line">Kaynak: <a href="https://www.mockaroo.com/" target="_blank">mockaroo.com</a></div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="cal-title">Ne zaman yeterli</div>
+        <p>Alanlar arası korelasyonun önemsiz olduğu, sadece şema/format geçerliliğinin test edildiği senaryolarda (UI testleri, yük testleri, geliştirme ortamı doldurma) kural tabanlı üretim hızlı ve yeterlidir.</p>
+      </div>
+    </section>
+
+    <!-- 05 İSTATİSTİKSEL -->
+    <section id="istatistiksel">
+      <div class="sec-head"><span class="sec-num">05</span><h2>İstatistiksel yöntemler</h2></div>
+      <p class="lede">Bu yaklaşım gerçek verinin dağılımını, marjinal istatistiklerini ve değişkenler arası korelasyon yapısını modelleyip, bu modelden yeni örnekler çeker. Kural tabanlıdan farkı: alanlar birbirinden bağımsız üretilmez, gerçek verideki ilişkiler korunur.</p>
+
+      <h3>Gaussian Copula ve SDV (Synthetic Data Vault)</h3>
+      <p>SDV, MIT'te geliştirilmiş, tablosal ve ilişkisel (çoklu tablo, yabancı anahtarlı) veri için en yaygın kullanılan açık kaynak Python kütüphanesidir. <code class="inline">GaussianCopulaSynthesizer</code> her sütunun marjinal dağılımını ayrı ayrı modelleyip, sütunlar arası bağımlılığı bir kopula fonksiyonuyla yakalar; <code class="inline">CTGANSynthesizer</code> ve <code class="inline">TVAESynthesizer</code> ise aynı kütüphane içinde derin üretici model seçenekleri sunar.</p>
+      <p class="out-label">Örnek kod</p>
+      <pre>from sdv.single_table import GaussianCopulaSynthesizer
+from sdv.metadata import SingleTableMetadata
+
+metadata = SingleTableMetadata()
+metadata.detect_from_dataframe(real_df)
+
+synthesizer = GaussianCopulaSynthesizer(metadata)
+synthesizer.fit(real_df)
+synthetic_df = synthesizer.sample(num_rows=1000)</pre>
+      <p class="out-label">Örnek çıktı (basitleştirilmiş)</p>
+      <pre>musteri_id,yas,sehir,aylik_gelir,kredi_notu
+S00001,34,Istanbul,28450,712
+S00002,51,Izmir,41200,655
+S00003,27,Ankara,19870,598</pre>
+      <div class="src-line">Kaynak: <a href="https://docs.sdv.dev/sdv" target="_blank">docs.sdv.dev</a> · Patki vd., <a href="https://arxiv.org/abs/1907.00503" target="_blank">"The Synthetic Data Vault" (2016)</a></div>
+
+      <h3>SMOTE — sınıf dengesizliği için sentetik oversampling</h3>
+      <p>SMOTE (Synthetic Minority Over-sampling Technique), azınlık sınıfındaki bir örnek ile onun en yakın komşuları arasında enterpolasyon yaparak yeni, gerçek olmayan ama gerçekçi ara noktalar üretir. Dolandırıcılık tespiti, nadir hastalık teşhisi gibi ciddi sınıf dengesizliği olan problemlerde standart bir ön işleme adımıdır.</p>
+      <pre>from imblearn.over_sampling import SMOTE
+X_res, y_res = SMOTE(random_state=42).fit_resample(X_train, y_train)
+<span class="c1"># azınlık sınıfı örnek sayısı çoğunluk sınıfına eşitlenir</span></pre>
+      <div class="src-line">Kaynak: Chawla vd., <a href="https://arxiv.org/abs/1106.1813" target="_blank">"SMOTE" (JAIR, 2002)</a></div>
+    </section>
+
+    <!-- 06 ÜRETİCİ MODELLER -->
+    <section id="uretici-modeller">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Derin üretici modeller: GAN, VAE, Diffusion</h2></div>
+      <p class="lede">İstatistiksel yöntemler basit dağılımlarla sınırlı kalırken, derin üretici modeller yüksek boyutlu, doğrusal olmayan veri manifoldlarını (görüntü pikselleri, karmaşık tablosal ilişkiler) öğrenebilir. Endüstride tablosal sentez için CTGAN/TVAE, görsel sentez için GAN ve Diffusion baskındır.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="badge">GAN</div>
+          <h4>Generative Adversarial Network</h4>
+          <p style="font-size:13.5px">Üretici (generator) ve ayırt edici (discriminator) iki ağın birbirine karşı eğitilmesiyle çalışır: üretici gerçekçi sahte örnekler üretmeye, ayırt edici gerçek ile sahteyi ayırmaya çalışır. Tablosal veri için <strong>CTGAN</strong> (karma sürekli/kategorik sütunları mode-specific normalization ile ele alır), görsel veri için StyleGAN ailesi öne çıkar.</p>
+          <div class="src-line">Kaynak: Goodfellow vd., <a href="https://arxiv.org/abs/1406.2661" target="_blank">"Generative Adversarial Nets" (2014)</a> · Xu vd., <a href="https://arxiv.org/abs/1907.00503" target="_blank">"Modeling Tabular data using CTGAN" (2019)</a></div>
+        </div>
+        <div class="card">
+          <div class="badge">VAE</div>
+          <h4>Variational Autoencoder</h4>
+          <p style="font-size:13.5px">Veriyi düşük boyutlu bir "gizli uzaya" (latent space) sıkıştırıp geri açan bir kodlayıcı/kod-çözücü çifti eğitilir; gizli uzaydan rastgele örnekleme yapılarak yeni veri üretilir. GAN'lara göre eğitimi daha kararlıdır fakat çıktılar genelde daha "bulanık"/muhafazakârdır. Tablosal sentezde <strong>TVAE</strong> yaygındır.</p>
+          <div class="src-line">Kaynak: Kingma & Welling, <a href="https://arxiv.org/abs/1312.6114" target="_blank">"Auto-Encoding Variational Bayes" (2013)</a></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="badge synth">Diffusion</div>
+        <h4>Diffusion / Denoising modeller</h4>
+        <p style="font-size:13.5px">Veriye kademeli olarak gürültü eklenip bu sürecin tersini öğrenerek (gürültüden veri üretimi) çalışır. Görüntü sentezinde (Stable Diffusion, DALL·E ailesi) günümüzün baskın yaklaşımıdır; son yıllarda tablosal ve zaman serisi sentezine de uyarlanmaktadır (ör. TabDDPM). GAN'lara kıyasla eğitim kararlılığı ve çıktı çeşitliliği genelde daha iyidir, ancak örnekleme (sampling) maliyeti daha yüksektir.</p>
+        <div class="src-line">Kaynak: Ho vd., <a href="https://arxiv.org/abs/2006.11239" target="_blank">"Denoising Diffusion Probabilistic Models" (2020)</a> · Kotelnikov vd., <a href="https://arxiv.org/abs/2209.15421" target="_blank">"TabDDPM" (2022)</a></div>
+      </div>
+
+      <p class="out-label" style="margin-top:22px">Örnek çıktı — CTGAN ile üretilmiş kredi başvurusu tablosu</p>
+      <pre>basvuru_id,gelir,yas,kredi_skoru,onay
+CT-04821,32100,29,671,1
+CT-04822,58900,44,720,1
+CT-04823,15200,23,540,0</pre>
+      <p style="font-size:13px;color:var(--text-faint);margin-top:-8px">Not: bu satırlar hiçbir gerçek başvurana karşılık gelmez; gelir–yaş–skor–onay arasındaki korelasyon yapısı orijinal veriden öğrenilmiştir.</p>
+    </section>
+
+    <!-- 07 SIMULASYON -->
+    <section id="simulasyon">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Simülasyon tabanlı üretim</h2></div>
+      <p class="lede">Fiziksel dünyayı (veya bir sürecin mantığını) bir yazılım ortamında modelleyip, bu ortamdan sensör verisi, görüntü, video veya olay akışı "kaydetmek" şeklinde çalışır. Etiketler simülasyon motorundan bedava ve hatasız gelir — çünkü sahnedeki her nesnenin konumu, sınıfı, derinliği zaten modelin kendisinde bilinmektedir.</p>
+
+      <div class="method-card">
+        <div class="method-head">
+          <h3>NVIDIA Omniverse Replicator</h3>
+          <span class="badge synth">Kurumsal · GPU gerekli</span>
+        </div>
+        <div class="method-body">
+          <p>NVIDIA'nın Omniverse platformu üzerinde çalışan, fotogerçekçi 3D sahnelerden otomatik etiketli görüntü/sensör verisi (segmentasyon maskesi, derinlik haritası, sınırlayıcı kutu) üreten bir araçtır. Otomotiv, imalat ve robotik alanlarında, özellikle nadir/tehlikeli senaryoları (kaza anı, kötü hava koşulu) güvenli biçimde çoğaltmak için kullanılır. NVIDIA, 2025'te Gretel'i satın alarak sentetik veri yeteneklerini bu platforma entegre etti.</p>
+          <div class="src-line">Kaynak: <a href="https://developer.nvidia.com/omniverse/replicator" target="_blank">developer.nvidia.com/omniverse/replicator</a></div>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-head">
+          <h3>Unity Perception / CARLA</h3>
+          <span class="badge">açık kaynak</span>
+        </div>
+        <div class="method-body">
+          <p><strong>Unity Perception</strong>, Unity oyun motoru üzerinde rastgele sahne varyasyonu (ışık, doku, nesne yerleşimi — "domain randomization") üreterek bilgisayarlı görü modelleri için etiketli veri sentezler. <strong>CARLA</strong> ise açık kaynaklı bir otonom sürüş simülatörüdür; araç, yaya, trafik ışığı davranışlarını fizik motoruyla simüle ederek LiDAR/kamera/radar verisi ve sürüş senaryoları üretir.</p>
+          <div class="src-line">Kaynak: <a href="https://unity.com/products/computer-vision" target="_blank">unity.com/products/computer-vision</a> · <a href="https://carla.org/" target="_blank">carla.org</a></div>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-head">
+          <h3>Synthea — sağlık verisi simülasyonu</h3>
+          <span class="badge synth">açık kaynak</span>
+        </div>
+        <div class="method-body">
+          <p>MITRE tarafından geliştirilen Synthea, sanal hastaların doğumdan ölüme tüm yaşamını (hastalık geçmişi, ilaçlar, laboratuvar sonuçları, hastane ziyaretleri) klinik olarak gerçekçi kurallar ve olasılık modelleriyle simüle eder; çıktı FHIR/HL7 standardında olduğu için gerçek hastane sistemleriyle uyumludur. Hiçbir gerçek hastaya ait veri içermediği için sağlık BT sistemlerinin geliştirme ve test aşamasında yaygın kullanılır.</p>
+          <p class="out-label">Örnek çıktı (özet satır)</p>
+          <pre>PatientID: 9f2a...  Yaş: 63  Cinsiyet: K
+Tanı: Tip 2 Diyabet (2019-03-11)
+İlaç: Metformin 500mg, 2x/gün (2019-03-11 → devam)
+Laboratuvar: HbA1c 7.4% (2024-11-02)</pre>
+          <div class="src-line">Kaynak: Walonoski vd., <a href="https://academic.oup.com/jamia/article/25/3/230/4098271" target="_blank">"Synthea: An approach, method, and software mechanism" (JAMIA, 2018)</a> · <a href="https://synthea.mitre.org/" target="_blank">synthea.mitre.org</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 LLM TABANLI -->
+    <section id="llm-tabanli">
+      <div class="sec-head"><span class="sec-num">08</span><h2>LLM tabanlı veri üretimi</h2></div>
+      <p class="lede">Büyük dil modellerinin kendisini "veri jeneratörü" olarak kullanmak, 2023 sonrası en hızlı büyüyen kategori oldu. Amaç: talimat ince ayarı (SFT), tercih optimizasyonu (RLHF/RLAIF) veya değerlendirme için metin/kod/akıl-yürütme verisi sentezlemek.</p>
+
+      <h3>Self-Instruct</h3>
+      <p>Az sayıda insan yazımı "tohum" (seed) talimattan başlayarak, aynı LLM'e bu tohumlara benzer yeni talimatlar ve bunlara karşılık gelen yanıtlar ürettirilir; düşük kaliteli veya birbirine çok benzeyen çıktılar filtrelenir. Stanford'un Alpaca veri kümesi bu yöntemle üretilmiştir.</p>
+      <p class="out-label">Örnek — tohum talimattan üretilen yeni talimatlar</p>
+      <pre><span class="c1">Girdi (tohum): "Bir e-postayı daha resmi hale getir"</span>
+
+Üretilen talimatlar:
+1. "Bu toplantı davetini daha profesyonel bir tona çevir"
+2. "Aşağıdaki şikayet metnini kibar ama kararlı bir dille yeniden yaz"
+3. "Bu iş teklifini resmi bir dille özetle"</pre>
+      <div class="src-line">Kaynak: Wang vd., <a href="https://arxiv.org/abs/2212.10560" target="_blank">"Self-Instruct" (2022)</a></div>
+
+      <h3>Evol-Instruct</h3>
+      <p>WizardLM makalesinde önerilen bu yöntem, var olan bir talimatı LLM'e adım adım "evrimleştirterek" (derinleştirme, kısıt ekleme, çok adımlı akıl yürütme gerektirme gibi) daha karmaşık hale getirir — buna <em>Evol-Complexity</em> denir. <em>Evol-Quality</em> ise aynı mantığı yanıtın kalitesini artırmak için uygular.</p>
+      <p class="out-label">Örnek — talimatın evrimleşmesi</p>
+      <pre><span class="c1">Adım 0 (orijinal):</span> "Bir sıralama algoritması yaz"
+<span class="c1">Adım 1 (derinleştirilmiş):</span> "O(n log n) karmaşıklığa sahip bir sıralama algoritması yaz ve karmaşıklık analizini açıkla"
+<span class="c1">Adım 2 (kısıt eklenmiş):</span> "Ekstra bellek kullanmadan (in-place), O(n log n) karmaşıklığa sahip bir sıralama algoritması yaz; test senaryoları da ekle"</pre>
+      <div class="src-line">Kaynak: Xu vd., <a href="https://arxiv.org/abs/2304.12244" target="_blank">"WizardLM: Empowering LLMs to Follow Complex Instructions" (2023)</a></div>
+
+      <h3>Araç: distilabel + Argilla</h3>
+      <p>Hugging Face ekosistemindeki <strong>distilabel</strong>, Self-Instruct ve Evol-Instruct gibi yöntemleri hazır "pipeline adımları" olarak sunan açık kaynak bir Python kütüphanesidir; ürettiği veriyi insan gözden geçirmesi için <strong>Argilla</strong> arayüzüne aktarabilir.</p>
+      <pre>from distilabel.steps.tasks import SelfInstruct
+from distilabel.models import InferenceEndpointsLLM
+
+self_instruct = SelfInstruct(
+    llm=InferenceEndpointsLLM(model_id="mistralai/Mistral-7B-Instruct-v0.2"),
+    num_instructions=5,
+)
+self_instruct.load()
+result = next(self_instruct.process([{"input": "Python'da liste tersleme"}]))</pre>
+      <div class="src-line">Kaynak: <a href="https://distilabel.argilla.io/" target="_blank">distilabel.argilla.io</a></div>
+
+      <div class="callout warn">
+        <div class="cal-title">Bilinen risk — model çöküşü (model collapse)</div>
+        <p>Bir modelin çıktısıyla eğitilen sonraki modeller, tekrar tekrar aynı sentetik veri üzerinden eğitildiğinde dağılımın kuyruklarını (nadir/özgün örnekleri) kaybedip giderek daha tekdüze, "ortalamaya çöken" çıktılar üretmeye başlayabilir. Bu yüzden endüstri pratiğinde sentetik veri, gerçek veriyle karıştırılır ve kalite filtrelemesi (ödül modeli skorlama, tutarlılık kontrolü) uygulanır.</p>
+      </div>
+    </section>
+
+    <!-- 09 AJAN TABANLI -->
+    <section id="ajan-tabanli">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Ajan / persona tabanlı simülasyon</h2></div>
+      <p class="lede">2025–2026 döneminde öne çıkan yeni bir eğilim: bir LLM ajanını değerlendirmek veya eğitmek için, farklı "persona"lara (sabırsız kullanıcı, teknik olmayan kullanıcı, kötü niyetli kullanıcı vb.) sahip başka LLM'lerin o ajanla çok turlu diyaloglar yürütmesi ve bu diyalogların sentetik değerlendirme/eğitim verisi olarak kullanılmasıdır.</p>
+      <p>Bu yaklaşım özellikle müşteri hizmetleri botları, kodlama ajanları ve çok adımlı görev-yürütücü ajanların, statik bir soru-cevap veri kümesiyle yakalanamayacak "gerçek kullanım" davranışlarına karşı test edilmesinde kullanılır. Klasik tablosal/görsel sentezden farkı, çıktının tek bir kayıt değil, zamana yayılan bir <em>davranış izi</em> (konuşma, araç çağrıları, karar dizisi) olmasıdır.</p>
+      <div class="src-line">Kaynak: <a href="https://futureagi.com/blog/top-5-synthetic-dataset-generators-2025/" target="_blank">Future AGI, "Top Synthetic Dataset Generators" (2026)</a></div>
+    </section>
+
+    <!-- 10 ARAÇ KARŞILAŞTIRMA -->
+    <section id="arac-karsilastirma">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Endüstri araçları — karşılaştırmalı tablo</h2></div>
+      <p class="lede">2026 itibarıyla piyasada öne çıkan araçların veri türüne, açıklık modeline ve tipik kullanım alanına göre özeti.</p>
+
+      <div class="grid-2" style="margin-bottom:8px">
+        <div class="tool-card">
+          <div class="tool-top"><h4>SDV — Synthetic Data Vault</h4><span class="badge synth">açık kaynak</span></div>
+          <div class="tool-tags"><span>tablosal</span><span>çoklu tablo</span><span>Python</span></div>
+          <p style="font-size:13px;margin:0">MIT kökenli, en çok kullanılan açık kaynak tablosal sentez kütüphanesi. GaussianCopula, CTGAN, TVAE sentezleyicilerini içerir; yabancı anahtar ilişkilerini korur.</p>
+          <div class="tool-link"><a href="https://docs.sdv.dev/sdv" target="_blank">docs.sdv.dev →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>Gretel (NVIDIA)</h4><span class="badge">kurumsal</span></div>
+          <div class="tool-tags"><span>tablosal</span><span>zaman serisi</span><span>API</span></div>
+          <p style="font-size:13px;margin:0">Geliştirici odaklı API'ler sunan platform; 2025'te NVIDIA tarafından satın alınıp Omniverse'e entegre edildi. İlişkisel veri, zaman serisi ve diferansiyel gizlilik desteği güçlü.</p>
+          <div class="tool-link"><a href="https://developer.nvidia.com/omniverse/replicator" target="_blank">nvidia.com/omniverse →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>MOSTLY AI</h4><span class="badge">kurumsal</span></div>
+          <div class="tool-tags"><span>tablosal</span><span>no-code</span><span>finans/sağlık</span></div>
+          <p style="font-size:13px;margin:0">Gizlilik-öncelikli, no-code arayüze sahip kurumsal platform; sentezleyici SDK'sı 2024 sonunda Apache 2.0 ile açık kaynak yapıldı. GDPR/HIPAA uyumluluğuna odaklanır.</p>
+          <div class="tool-link"><a href="https://mostly.ai/" target="_blank">mostly.ai →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>K2view</h4><span class="badge">kurumsal</span></div>
+          <div class="tool-tags"><span>ilişkisel</span><span>kurumsal ölçek</span></div>
+          <p style="font-size:13px;margin:0">Büyük kurumların (SAP, Oracle gibi) karmaşık ilişkisel veritabanlarında referans bütünlüğünü koruyan test verisi üretimine odaklanır.</p>
+          <div class="tool-link"><a href="https://www.k2view.com/" target="_blank">k2view.com →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>Tonic.ai</h4><span class="badge">kurumsal</span></div>
+          <div class="tool-tags"><span>veritabanı-native</span><span>CI/CD</span></div>
+          <p style="font-size:13px;margin:0">Veritabanı şemasına doğrudan bağlanıp, geliştirme/test ortamları için otomatik yenilenen sentetik kopyalar üretir; CI/CD hattına entegrasyon güçlüdür.</p>
+          <div class="tool-link"><a href="https://www.tonic.ai/" target="_blank">tonic.ai →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>Synthea</h4><span class="badge synth">açık kaynak</span></div>
+          <div class="tool-tags"><span>sağlık</span><span>FHIR/HL7</span></div>
+          <p style="font-size:13px;margin:0">MITRE'nin sanal hasta yaşam öyküsü simülatörü. Sağlık BT sistemlerinin test ve geliştirme aşamasında standart bir referans.</p>
+          <div class="tool-link"><a href="https://synthea.mitre.org/" target="_blank">synthea.mitre.org →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>NVIDIA Omniverse Replicator</h4><span class="badge">kurumsal · GPU</span></div>
+          <div class="tool-tags"><span>görüntü</span><span>3D/sensör</span><span>robotik</span></div>
+          <p style="font-size:13px;margin:0">Fotogerçekçi 3D sahnelerden otomatik etiketli görsel veri üretir; imalat, otomotiv ve robotikte 250'den fazla kurumsal dağıtımı bulunuyor.</p>
+          <div class="tool-link"><a href="https://developer.nvidia.com/omniverse/replicator" target="_blank">developer.nvidia.com →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>distilabel + Argilla</h4><span class="badge synth">açık kaynak</span></div>
+          <div class="tool-tags"><span>metin/LLM</span><span>talimat verisi</span><span>Hugging Face</span></div>
+          <p style="font-size:13px;margin:0">Self-Instruct, Evol-Instruct gibi LLM tabanlı veri sentezi yöntemlerini hazır pipeline adımları olarak sunar; Argilla ile insan gözden geçirmesine bağlanır.</p>
+          <div class="tool-link"><a href="https://distilabel.argilla.io/" target="_blank">distilabel.argilla.io →</a></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-top"><h4>Faker / Mockaroo</h4><span class="badge synth">açık kaynak / ücretsiz katman</span></div>
+          <div class="tool-tags"><span>kural tabanlı</span><span>test verisi</span></div>
+          <p style="font-size:13px;margin:0">Hızlı, kural tabanlı sahte veri üretimi için giriş seviyesi standart araçlar; istatistiksel gerçekçilik hedeflemez.</p>
+          <div class="tool-link"><a href="https://faker.readthedocs.io/" target="_blank">faker.readthedocs.io →</a></div>
+        </div>
+      </div>
+
+      <table>
+        <tr><th>Karar kriteri</th><th>Öneri</th></tr>
+        <tr><td>Prototipleme, güçlü Python ekibi, tek makine ölçeği</td><td><strong>SDV</strong> veya <strong>Faker</strong> ile başlayın</td></tr>
+        <tr><td>Yasal uyumluluk denetimi, kurumsal ölçek, CI/CD hızı</td><td><strong>Gretel / MOSTLY AI / Tonic.ai / K2view</strong></td></tr>
+        <tr><td>Bilgisayarlı görü / robotik / otonom sistemler</td><td><strong>NVIDIA Omniverse Replicator</strong>, Unity Perception, CARLA</td></tr>
+        <tr><td>LLM ince ayarı, RLHF veri kümesi, akıl yürütme verisi</td><td><strong>distilabel</strong>, Self-Instruct/Evol-Instruct kendi pipeline'ınız</td></tr>
+        <tr><td>Sağlık kayıt sistemi test/geliştirme</td><td><strong>Synthea</strong></td></tr>
+      </table>
+    </section>
+
+    <!-- 11 KALITE -->
+    <section id="kalite">
+      <div class="sec-head"><span class="sec-num">11</span><h2>Kalite nasıl değerlendirilir?</h2></div>
+      <p class="lede">"İyi" sentetik veri üç eksende ölçülür; bu üçü genelde birbiriyle gerilim halindedir.</p>
+      <div class="grid-3">
+        <div class="card">
+          <h4 style="color:var(--real)">Fidelity (Sadakat)</h4>
+          <p style="font-size:13.5px">Sentetik verinin marjinal dağılımları ve korelasyon yapısı gerçek veriye ne kadar yakın? İstatistiksel testlerle (Kolmogorov-Smirnov, korelasyon farkı) ölçülür.</p>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--synth)">Utility (Fayda)</h4>
+          <p style="font-size:13.5px">Sentetik veriyle eğitilen bir modelin, gerçek test verisi üzerindeki performansı gerçek veriyle eğitilene ne kadar yakın? ("Train-synthetic, test-real" protokolü)</p>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--danger)">Privacy (Gizlilik)</h4>
+          <p style="font-size:13.5px">Üyelik çıkarım saldırısı (membership inference) gibi yöntemlerle, sentetik kayıtlardan orijinal bireylerin geri çıkarılıp çıkarılamadığı test edilir. Diferansiyel gizlilik (differential privacy) formel garanti sağlar.</p>
+        </div>
+      </div>
+      <p>Pratikte fidelity ve privacy birbiriyle ters orantılıdır: veri gerçek veriye ne kadar yakınsa, gizlilik sızıntı riski de o kadar artar. Diferansiyel gizlilik gürültüsü eklemek bu riski azaltır ama fidelity'yi düşürür — bu yüzden üretim sürecinde bilinçli bir denge kurulur.</p>
+    </section>
+
+    <!-- 12 RİSKLER -->
+    <section id="riskler">
+      <div class="sec-head"><span class="sec-num">12</span><h2>Riskler ve sınırlamalar</h2></div>
+      <ul class="plain">
+        <li><strong>Model çöküşü (model collapse):</strong> Art arda sentetik veriyle eğitilen modeller dağılımın kuyruğunu kaybedip tekdüzeleşebilir.</li>
+        <li><strong>Yanlış güven duygusu:</strong> "Sentetik = otomatik olarak gizli" varsayımı yanlıştır; yeterince yakın üretilen kayıtlar yeniden-kimliklendirilebilir.</li>
+        <li><strong>Önyargı büyütme (bias amplification):</strong> Kaynak veride var olan önyargılar, üretici model tarafından öğrenilip hatta abartılarak yeniden üretilebilir.</li>
+        <li><strong>Nadir/uç senaryo kör noktası:</strong> Model, eğitim verisinde çok az görülen örüntüleri iyi öğrenemeyeceği için, tam da ihtiyaç duyulan nadir senaryolarda gerçekçilik düşebilir (istatistiksel/derin öğrenme yöntemlerinde; simülasyon bu sorunu farklı şekilde çözer).</li>
+        <li><strong>Doğrulama yükü:</strong> Sentetik veri kalitesinin sürekli izlenmesi (fidelity/utility/privacy metrikleri) ek bir mühendislik maliyetidir, "bir kere üret unut" değildir.</li>
+      </ul>
+    </section>
+
+    <!-- 13 YOL HARİTASI -->
+    <section id="yol-haritasi">
+      <div class="sec-head"><span class="sec-num">13</span><h2>Öğrenme yol haritası</h2></div>
+      <ol class="steps">
+        <li><strong>Temel istatistik ve olasılık</strong> — dağılımlar, korelasyon, örnekleme teorisi. Bunlar tüm yöntemlerin ortak dili.</li>
+        <li><strong>Faker + SDV ile pratik yapın</strong> — küçük bir CSV üzerinde GaussianCopula ve CTGAN sentezleyicilerini karşılaştırın, fidelity raporlarını okuyun (<code class="inline">sdv.evaluation</code>).</li>
+        <li><strong>Bir GAN/VAE'yi sıfırdan implemente edin</strong> — MNIST gibi küçük bir görüntü veri kümesinde, üretici modellerin nasıl çalıştığını sezgisel olarak kavrayın.</li>
+        <li><strong>SMOTE ile dengesiz bir sınıflandırma problemi çözün</strong> — <code class="inline">imbalanced-learn</code> kütüphanesiyle gerçek bir Kaggle veri kümesinde deneyin.</li>
+        <li><strong>distilabel ile bir talimat veri kümesi üretin</strong> — Self-Instruct pipeline'ını küçük bir açık kaynak LLM ile çalıştırıp çıktı kalitesini inceleyin.</li>
+        <li><strong>Gizlilik değerlendirmesini öğrenin</strong> — üyelik çıkarım saldırısı ve diferansiyel gizlilik kavramlarını uygulamalı bir örnekle pekiştirin.</li>
+      </ol>
+    </section>
+
+    <!-- 14 KAYNAKÇA -->
+    <section id="kaynakca">
+      <div class="sec-head"><span class="sec-num">14</span><h2>Kaynakça</h2></div>
+      <ul class="refs">
+        <li><div><a href="https://docs.sdv.dev/sdv" target="_blank">SDV Documentation — The Synthetic Data Vault</a><span class="sub">docs.sdv.dev</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/1907.00503" target="_blank">Xu, L. vd. — "Modeling Tabular Data using Conditional GAN" (NeurIPS 2019)</a><span class="sub">arxiv.org/abs/1907.00503</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/1406.2661" target="_blank">Goodfellow, I. vd. — "Generative Adversarial Networks" (2014)</a><span class="sub">arxiv.org/abs/1406.2661</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/1312.6114" target="_blank">Kingma, D. & Welling, M. — "Auto-Encoding Variational Bayes" (2013)</a><span class="sub">arxiv.org/abs/1312.6114</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/2006.11239" target="_blank">Ho, J. vd. — "Denoising Diffusion Probabilistic Models" (2020)</a><span class="sub">arxiv.org/abs/2006.11239</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/2209.15421" target="_blank">Kotelnikov, A. vd. — "TabDDPM: Modelling Tabular Data with Diffusion Models" (2022)</a><span class="sub">arxiv.org/abs/2209.15421</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/1106.1813" target="_blank">Chawla, N. vd. — "SMOTE: Synthetic Minority Over-sampling Technique" (JAIR, 2002)</a><span class="sub">arxiv.org/abs/1106.1813</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/2212.10560" target="_blank">Wang, Y. vd. — "Self-Instruct: Aligning Language Models with Self-Generated Instructions" (2022)</a><span class="sub">arxiv.org/abs/2212.10560</span></div></li>
+        <li><div><a href="https://arxiv.org/abs/2304.12244" target="_blank">Xu, C. vd. — "WizardLM: Empowering LLMs to Follow Complex Instructions" (2023)</a><span class="sub">arxiv.org/abs/2304.12244</span></div></li>
+        <li><div><a href="https://distilabel.argilla.io/" target="_blank">Argilla — distilabel Documentation</a><span class="sub">distilabel.argilla.io</span></div></li>
+        <li><div><a href="https://academic.oup.com/jamia/article/25/3/230/4098271" target="_blank">Walonoski, J. vd. — "Synthea: An approach, method, and software mechanism" (JAMIA, 2018)</a><span class="sub">academic.oup.com/jamia</span></div></li>
+        <li><div><a href="https://synthea.mitre.org/" target="_blank">MITRE — Synthea Project</a><span class="sub">synthea.mitre.org</span></div></li>
+        <li><div><a href="https://developer.nvidia.com/omniverse/replicator" target="_blank">NVIDIA — Omniverse Replicator</a><span class="sub">developer.nvidia.com</span></div></li>
+        <li><div><a href="https://unity.com/products/computer-vision" target="_blank">Unity — Computer Vision / Perception</a><span class="sub">unity.com</span></div></li>
+        <li><div><a href="https://carla.org/" target="_blank">CARLA — Open-source autonomous driving simulator</a><span class="sub">carla.org</span></div></li>
+        <li><div><a href="https://faker.readthedocs.io/" target="_blank">Faker Documentation</a><span class="sub">faker.readthedocs.io</span></div></li>
+        <li><div><a href="https://mostly.ai/" target="_blank">MOSTLY AI</a><span class="sub">mostly.ai</span></div></li>
+        <li><div><a href="https://www.k2view.com/" target="_blank">K2view — Synthetic Data Generation</a><span class="sub">k2view.com</span></div></li>
+        <li><div><a href="https://www.tonic.ai/" target="_blank">Tonic.ai</a><span class="sub">tonic.ai</span></div></li>
+        <li><div><a href="https://futureagi.com/blog/top-5-synthetic-dataset-generators-2025/" target="_blank">Future AGI — "Top 5 Synthetic Dataset Generators in 2026"</a><span class="sub">futureagi.com</span></div></li>
+      </ul>
+    </section>
+
+    <footer>
+      Sentetik Veri Üretimi — CS mezunları için hazırlanan teknik rehber · Temmuz 2026
+    </footer>
+  </main>
+</div>
+</body>
+</html>
