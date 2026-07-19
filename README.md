@@ -53,10 +53,13 @@ Eğitim sırasında yaptığım egzersizler, yazdığım kodlar, quizler burada 
 
 # Notlarım
 
+Bu dosyada genel notlar vardır. Detaylı ders notları için klasörlerin içerisine bakınız. (örn. ML içerisinde ML ile ilgili notlar içeren README.md)
+
+> Detaylı notları İngilizce dilinde yazmak, araştırma yaparken kullandığım kaynakların da çoğunun İngilizce dilinde yazılmış olmasından dolayı kişisel tercihimdir.
+
 ## Dosya Yapısı
 
-'''
-│   README_TR.md
+```│   README.md
 │   README_EN.md
 │   sentetik-veri-uretimi.html
 │   Sinem_Gencer_CV.html
@@ -121,5 +124,52 @@ Eğitim sırasında yaptığım egzersizler, yazdığım kodlar, quizler burada 
 │           lstm.ipynb
 │           spam.csv
 │
-└───Quiz
-'''
+└───Quiz```
+
+## Makine Öğrenmesi
+
+Öğrencilerin günlük hayatları, ders çalışma sıklıkları, okula uzaklıkları ve daha fazla özellikleri baz alınarak sınavdan alacakları not tahmin edilmiştir.
+
+| Model | Accuracy | Precision | Recall | F1 Score | MAE | MSE | RMSE | R² |
+|--------|:--------:|:---------:|:------:|:--------:|:---:|:---:|:----:|:--:|
+| Linear Regression | — | — | — | — | **0.481** | **4.153** | **2.038** | **0.733** |
+| Logistic Regression | **0.9835** | **0.9743** | **0.9589** | **0.9665** | — | — | — | — |
+| K-Nearest Neighbors (KNN) | **0.8723** | **0.8462** | **0.5918** | **0.6965** | — | — | — | — |
+| Naive Bayes | **0.9350** | **0.9331** | **0.7943** | **0.8581** | — | — | — | — |
+| Support Vector Machine (SVM) | **0.9718** | **0.9575** | **0.9272** | **0.9421** | — | — | — | — |
+| LightGBM | **0.9444** | **0.9359** | **0.8323** | **0.8811** | — | — | — | — |
+| XGBoost | **0.9436** | **0.9266** | **0.8386** | **0.8804** | — | — | — | — |
+| AdaBoost | **0.9373** | **0.9245** | **0.8133** | **0.8653** | — | — | — | — |
+
+## Doğal Dil İşleme
+
+**TF-IDF** ile yapay zeka hakkında yazılmış bir makaleden parçalar alınmış ve kelimelerin analizleri yapılmıştır.
+
+Sıklık/nadirlik dengesi baz alınarak hesaplanan en önemli 3 kelime:
+- olarak: 2.197
+- ağırlıklı: 2.197
+- kadar: 1.216
+
+**IMDB** yorumları, hatalardan ve eksikliklerden arındılmıştır ve tokenlere çevrilmiştir. Sonra da **Word2Vec, GloVe, FastText** ile işlenmiştir.
+
+**Word2Vec** çıktıları
+
+```Kelime çiftleri arasındaki benzerlik:
+Çift                            Benzerlik
+------------------------------------------
+(movie, film)                0.8926  █████████████████
+(good, great)                0.7586  ███████████████
+(watch, see)                0.7186  ██████████████
+(okay, fine)                0.5374  ██████████
+(like, enjoy)                0.4894  █████████
+(bad, cool)                0.4899  █████████
+
+
+=== Vektör Aritmetiği ===
+  (movie + action - film)
+  → gunfights        (0.6361)
+  → swordplay        (0.6330)
+  → honk             (0.6239)```
+
+
+**GloVe** çıktıları:
